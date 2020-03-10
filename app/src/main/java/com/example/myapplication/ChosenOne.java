@@ -42,7 +42,7 @@ public class ChosenOne extends Fragment {
         idek = view.findViewById(R.id.showUpId);
         geometry = view.findViewById(R.id.showUpGeometry);
         properties = view.findViewById(R.id.showUpProperties);
-        feature = MainActivity.database.myDao().getFeatureById(wybraneId);
+        feature = MainActivity.database.myDao().getFeatureById(wybraneId).s
         type.setText(feature.getType());
         idek.setText(Long.toString(feature.getId()));
         geometry.setText(feature.getGeometry().toString());

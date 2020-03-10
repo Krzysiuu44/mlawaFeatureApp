@@ -8,7 +8,7 @@ public class RoomConstant {
     public final static database buildRoomDb(Context context) {
         return Room.databaseBuilder(context, database.class, "app_db") // tu ma wejsc nazwa bazy z serweru
                 .fallbackToDestructiveMigration()
-                .allowMainThreadQueries()
+                //.allowMainThreadQueries()
                 .build();
     }
 }

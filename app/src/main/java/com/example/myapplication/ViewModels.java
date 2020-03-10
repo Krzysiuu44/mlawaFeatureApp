@@ -1,5 +1,6 @@
 package com.example.myapplication;
 
+import android.annotation.SuppressLint;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -15,6 +16,9 @@ import java.io.IOException;
 import java.util.Collections;
 import java.util.List;
 
+import io.reactivex.Completable;
+import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.schedulers.Schedulers;
 import retrofit2.Response;
 
 
@@ -30,6 +34,7 @@ public class ViewModels extends Fragment {
 
     private RecyclerView list;
     private Adapter adapter;
+    private List<Feature> thatList = Collections.emptyList();
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -51,42 +56,72 @@ public class ViewModels extends Fragment {
         return view;
     }
 
-    private List<Feature> thatList = Collections.emptyList();
+    @SuppressLint("CheckResult")
+    private Completable pobiezZWeb() {
+        return Completable.create(emitter -> {
+            try {
+                Response<JsonElement> response = MainActivity.restApi.getDocuments(MainActivity.token).execute();
+                Model model = Model.parse(response.body());
 
-    private void pobiezZWeb() {
-        try {
-            Response<JsonElement> response = MainActivity.restApi.getDocuments(MainActivity.token).execute();
-            Model model = Model.parse(response.body());
+                addToDatebase(model.features);
 
-            addToDatebase(model.features);
+                pobiezZDB().subscribe(
+                        emitter::onComplete,
+                        emitter::onError
+                );
 
-            pobiezZDB();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+            } catch (IOException e) {
+                e.printStackTrace();
+                emitter.onComplete();
+            }
+        })
+                .subscribeOn(Schedulers.io());
     }
 
-    private void pobiezZDB() {
-        List<Feature> list = MainActivity.database.myDao().getList();
-
-        if (list == null) {
-            list = Collections.emptyList();
-        }
-
-        setToAdapter(list);
+    @SuppressLint("CheckResult")
+    private Completable pobiezZDB() {
+        return Completable.create(emitter -> {
+            MainActivity.database
+                    .myDao()
+                    .getList()
+                    .subscribeOn(Schedulers.io())
+                    .observeOn(AndroidSchedulers.mainThread())
+                    .subscribe(features -> {
+                        setToAdapter(features);
+                        emitter.onComplete();
+                    });
+        })
+                .subscribeOn(Schedulers.io());
     }
 
+    @SuppressLint("CheckResult")
     private void wyswietl() {
-        long count = MainActivity.database.myDao().count();
-        if (count == 0) {
-            pobiezZWeb();
-        } else {
-            pobiezZDB();
-        }
+        MainActivity.database
+                .myDao()
+                .count()
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .flatMapCompletable(count -> {
+                    if (count == 0) {
+                        return pobiezZWeb();
+                    } else {
+                        return pobiezZDB();
+                    }
+                })
+                .subscribe(() -> {
+                    System.out.println("Załadowano");
+                });
     }
 
-    private void addToDatebase(List<Feature> list) {
-        MainActivity.database.myDao().addModel(list);
+    private Completable addToDatebase(List<Feature> list) {
+        return Completable.create(emitter -> {
+            MainActivity.database.myDao()
+                    .addModel(list)
+                    .subscribeOn(AndroidSchedulers.mainThread())
+                    .subscribe(() -> {
+
+                    })
+        });
     }
 
     private void setToAdapter(List<Feature> list) {

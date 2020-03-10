@@ -1,5 +1,6 @@
 package com.example.myapplication;
 
+import android.annotation.SuppressLint;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -12,6 +13,8 @@ import androidx.fragment.app.Fragment;
 
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
+
+import io.reactivex.android.schedulers.AndroidSchedulers;
 
 public class addModelFragment extends Fragment {
     private EditText modelGeomety, modelProperties, modelType;
@@ -55,18 +58,23 @@ public class addModelFragment extends Fragment {
         return view;
     }
 
+    @SuppressLint("CheckResult")
     private void addToDatebase(Feature feature) {
-        MainActivity.database.myDao().addModel(feature);
+        Toast.makeText(getActivity(), "Dodawanie w trakcie", Toast.LENGTH_SHORT).show();
+        MainActivity.database.myDao()
+                .addModel(feature)
+                .observeOn(AndroidSchedulers.mainThread())// wymaga dostepu do main freda
+                .subscribe(() -> {
+                    Toast.makeText(getActivity(), "dodawanie zakończone sukcesem", Toast.LENGTH_SHORT).show();
 
-        Toast.makeText(getActivity(), "that model added successfull", Toast.LENGTH_SHORT).show();
+                    modelGeomety.setText("");
+                    modelProperties.setText("");
+                    modelType.setText("");
 
-        modelGeomety.setText("");
-        modelProperties.setText("");
-        modelType.setText("");
-
-        MainActivity.fragmentManager.beginTransaction()
-                .replace(R.id.fragment_container, new HomeFragment())
-                .addToBackStack(null)
-                .commit();
+                    MainActivity.fragmentManager.beginTransaction()
+                            .replace(R.id.fragment_container, new HomeFragment())
+                            .addToBackStack(null)
+                            .commit();
+                });
     }
 }
