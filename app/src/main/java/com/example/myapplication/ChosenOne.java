@@ -1,5 +1,6 @@
 package com.example.myapplication;
 
+import android.annotation.SuppressLint;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -7,6 +8,14 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import androidx.fragment.app.Fragment;
+
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
+
+import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.schedulers.Schedulers;
 
 
 /**
@@ -20,6 +29,8 @@ public class ChosenOne extends Fragment {
     public TextView geometry;
     public TextView properties;
     public TextView type;
+    public String temp;
+    public Object aaa;
 
     public ChosenOne(long id) {
         wybraneId = id;
@@ -33,6 +44,14 @@ public class ChosenOne extends Fragment {
         this.feature = feature;
     }
 
+    public String toPrettyFormat(String jsonString) {
+        JsonParser parser = new JsonParser();
+        JsonObject jsonObject = parser.parse(jsonString).getAsJsonObject();
+        Gson gson = new GsonBuilder().setPrettyPrinting().create();
+        return gson.toJson(jsonObject);
+    }
+
+    @SuppressLint("CheckResult")
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
@@ -42,11 +61,19 @@ public class ChosenOne extends Fragment {
         idek = view.findViewById(R.id.showUpId);
         geometry = view.findViewById(R.id.showUpGeometry);
         properties = view.findViewById(R.id.showUpProperties);
-        feature = MainActivity.database.myDao().getFeatureById(wybraneId).s
-        type.setText(feature.getType());
-        idek.setText(Long.toString(feature.getId()));
-        geometry.setText(feature.getGeometry().toString());
-        properties.setText(feature.getProperties().toString());
+        MainActivity.database.myDao().getFeatureById(wybraneId)
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(feature -> {
+                    this.feature = feature;
+                    type.setText(feature.getType());
+                    idek.setText(Long.toString(feature.getId()));
+                    temp = toPrettyFormat(feature.getGeometry().toString());
+                    geometry.setText(temp);
+                    temp = toPrettyFormat(feature.getProperties().toString());
+                    properties.setText(temp);
+                });
+
         return view;
 
     }

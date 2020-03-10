@@ -29,7 +29,7 @@ public abstract class myDao {
         return Completable.create(emitter -> {
             addModel_(feature)
                     .subscribeOn(Schedulers.io())
-                    .subscribe(id -> {
+                    .subscribe(id -> { //tu np potrzebujemy zwrocic jeszcze id
                         feature.id = id;
                         emitter.onComplete();
                     });

@@ -63,12 +63,13 @@ public class ViewModels extends Fragment {
                 Response<JsonElement> response = MainActivity.restApi.getDocuments(MainActivity.token).execute();
                 Model model = Model.parse(response.body());
 
-                addToDatebase(model.features);
-
-                pobiezZDB().subscribe(
-                        emitter::onComplete,
-                        emitter::onError
-                );
+                Completable.complete()
+                        .andThen(addToDatebase(model.features))
+                        .andThen(pobiezZDB())
+                        .subscribe(
+                                emitter::onComplete,
+                                emitter::onError
+                        );
 
             } catch (IOException e) {
                 e.printStackTrace();
@@ -86,7 +87,7 @@ public class ViewModels extends Fragment {
                     .getList()
                     .subscribeOn(Schedulers.io())
                     .observeOn(AndroidSchedulers.mainThread())
-                    .subscribe(features -> {
+                    .subscribe(features -> { // a tu dajemy co mamy z nim zrobic, tu wstawiamy do adaptera
                         setToAdapter(features);
                         emitter.onComplete();
                     });
@@ -113,15 +114,12 @@ public class ViewModels extends Fragment {
                 });
     }
 
+    @SuppressLint("CheckResult")
     private Completable addToDatebase(List<Feature> list) {
-        return Completable.create(emitter -> {
-            MainActivity.database.myDao()
-                    .addModel(list)
-                    .subscribeOn(AndroidSchedulers.mainThread())
-                    .subscribe(() -> {
-
-                    })
-        });
+        return MainActivity.database.myDao()
+                .addModel(list)
+                .subscribeOn(Schedulers.io())
+                .ignoreElement(); //ignorujemy bo nie potrzebujemy z tym nic dalej robic
     }
 
     private void setToAdapter(List<Feature> list) {
