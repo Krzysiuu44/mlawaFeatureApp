@@ -30,7 +30,7 @@ public class Adapter extends RecyclerView.Adapter<Adapter.ViewHolder> {
 
             textView1 = itemView.findViewById(R.id.textView1);
             textView2 = itemView.findViewById(R.id.textView2);
-            relativeLayout = itemView.findViewById(R.id.RelativeLayout);
+            relativeLayout = itemView.findViewById(R.id.RelativeLayout);//tu musi byc ten xml fragmentowy
         }
     }
 

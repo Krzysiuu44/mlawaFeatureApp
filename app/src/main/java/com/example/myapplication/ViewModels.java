@@ -47,7 +47,7 @@ public class ViewModels extends Fragment {
         //   });
         adapter = new Adapter(getContext(), thatList);
 
-        list = view.findViewById(R.id.RecyclerView);
+        list = view.findViewById(R.id.RecyclerView1);
         list.setLayoutManager(new LinearLayoutManager(getContext(), LinearLayoutManager.VERTICAL, false));
         list.setAdapter(adapter);
 

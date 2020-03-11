@@ -52,6 +52,9 @@ dependencies {
     implementation group: 'io.reactivex.rxjava2', name: 'rxjava', version: '2.2.18'
     implementation "androidx.room:room-rxjava2:$room_version"
     implementation 'io.reactivex.rxjava2:rxandroid:2.1.1'
+    implementation group: 'com.fasterxml.jackson.core', name: 'jackson-core', version: '2.10.3'
+    // https://mvnrepository.com/artifact/com.fasterxml.jackson.core/jackson-databind
+    implementation group: 'com.fasterxml.jackson.core', name: 'jackson-databind', version: '2.10.3'
 
 
     implementation("com.squareup.okhttp3:okhttp:4.4.0")
