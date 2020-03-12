@@ -1,15 +1,12 @@
 package com.example.myapplication;
 
-import android.content.Intent;
 import android.os.Bundle;
-
-import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentManager;
-
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+
+import androidx.fragment.app.Fragment;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -39,22 +36,21 @@ public class HomeFragment extends Fragment implements View.OnClickListener {
         bnView.setOnClickListener(this);
         //to update
 
-
         return view;
     }
 
     @Override
     public void onClick(View v) {
-        switch (v.getId()){
+        switch (v.getId()) {
             case R.id.bn_add_user:
                 MainActivity.fragmentManager.beginTransaction()
-                        .replace(R.id.fragment_container,new addModelFragment())
+                        .replace(R.id.fragment_container, new addModelFragment())
                         .addToBackStack(null)
                         .commit();
                 break;
             case R.id.button_view:
                 MainActivity.fragmentManager.beginTransaction()
-                        .replace(R.id.fragment_container,new ViewModels())
+                        .replace(R.id.fragment_container, new ViewModels())
                         .addToBackStack(null)
                         .commit();
                 break;

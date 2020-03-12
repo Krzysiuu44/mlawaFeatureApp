@@ -10,6 +10,8 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
+import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import java.util.List;
@@ -19,6 +21,7 @@ public class AdapterChoice extends RecyclerView.Adapter<AdapterChoice.ViewHolder
     private Context context;
     private List<Pair<String, String>> mainList;
     private View textValue;
+    private FragmentManager fragmentManager;
 
     public static class ViewHolder extends RecyclerView.ViewHolder {
         public TextView textKey;
@@ -26,9 +29,14 @@ public class AdapterChoice extends RecyclerView.Adapter<AdapterChoice.ViewHolder
         //public ListView listView;
         public RelativeLayout relativeLayout;
 
-        public static void changeAttribute(boolean a) {
+        public static void changeAttribute(boolean a, long b) {
             //textValue.setFocusableInTouchMode(a);
             textValue.setEnabled(a);
+            Fragment rSum = new Fragment();
+            MainActivity.fragmentManager.beginTransaction()
+                    .replace(R.id.fragment_container, new ChosenOne(b))
+                    .addToBackStack(null)
+                    .commit();
         }
 
         public ViewHolder(@NonNull View itemView) {
@@ -37,7 +45,6 @@ public class AdapterChoice extends RecyclerView.Adapter<AdapterChoice.ViewHolder
             textValue = itemView.findViewById(R.id.textValue);//optional
             //listView = itemView.findViewById(R.id.textValue);
             relativeLayout = itemView.findViewById(R.id.showUpProperties);
-            textValue.setEnabled(false);
         }
     }
 

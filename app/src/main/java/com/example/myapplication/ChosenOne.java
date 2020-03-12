@@ -120,10 +120,10 @@ public class ChosenOne extends Fragment implements View.OnClickListener {
     public void onClick(View v) {
         switch (v.getId()) {
             case R.id.buttonEdit:
-                AdapterChoice.ViewHolder.changeAttribute(true);
+                AdapterChoice.ViewHolder.changeAttribute(true, wybraneId);
                 break;
             case R.id.buttonSave:
-                AdapterChoice.ViewHolder.changeAttribute(false);
+                AdapterChoice.ViewHolder.changeAttribute(false, wybraneId);
                 break;
         }
     }
