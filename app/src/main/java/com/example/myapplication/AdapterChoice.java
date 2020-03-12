@@ -5,6 +5,7 @@ import android.util.Pair;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.EditText;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
@@ -17,19 +18,26 @@ import java.util.List;
 public class AdapterChoice extends RecyclerView.Adapter<AdapterChoice.ViewHolder> {
     private Context context;
     private List<Pair<String, String>> mainList;
+    private View textValue;
 
     public static class ViewHolder extends RecyclerView.ViewHolder {
         public TextView textKey;
-        public TextView textValue;
+        public static EditText textValue;
         //public ListView listView;
         public RelativeLayout relativeLayout;
+
+        public static void changeAttribute(boolean a) {
+            //textValue.setFocusableInTouchMode(a);
+            textValue.setEnabled(a);
+        }
 
         public ViewHolder(@NonNull View itemView) {
             super(itemView);
             textKey = itemView.findViewById(R.id.textKey);
             textValue = itemView.findViewById(R.id.textValue);//optional
             //listView = itemView.findViewById(R.id.textValue);
-            relativeLayout = itemView.findViewById(R.id.RelativeLayout44);
+            relativeLayout = itemView.findViewById(R.id.showUpProperties);
+            textValue.setEnabled(false);
         }
     }
 

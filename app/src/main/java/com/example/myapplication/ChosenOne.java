@@ -6,6 +6,7 @@ import android.util.Pair;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.TextView;
 
 import androidx.fragment.app.Fragment;
@@ -28,21 +29,21 @@ import io.reactivex.schedulers.Schedulers;
 /**
  * A simple {@link Fragment} subclass.
  */
-public class ChosenOne extends Fragment {
+public class ChosenOne extends Fragment implements View.OnClickListener {
 
     private AdapterChoice adapterChoice;
     private RecyclerView listView;
+    private Button editButtonZAdaptera;
+    private Button saveButtonZAdaptera;
+    private Button abortButtonZAdaptera;
     private List<Pair<String, String>> theList = Collections.emptyList();
-
 
     private long wybraneId;
     private Feature feature;
     public TextView idek;
     public TextView geometry;
-    public TextView properties;
+    //public TextView properties;
     public TextView type;
-    public String temp;
-    public JsonObject aaa;
 
     public ChosenOne(long id) {
         wybraneId = id;
@@ -73,25 +74,31 @@ public class ChosenOne extends Fragment {
         adapterChoice = new AdapterChoice(getContext(), theList);
         listView = view.findViewById(R.id.showUpProperties);
         listView.setLayoutManager(new LinearLayoutManager(getContext(), LinearLayoutManager.VERTICAL, false));
-        //listView.setAdapter((ListAdapter) adapterChoice);
         listView.setAdapter(adapterChoice);
+        editButtonZAdaptera = view.findViewById(R.id.buttonEdit);
+        editButtonZAdaptera.setOnClickListener(this);
+        saveButtonZAdaptera = view.findViewById(R.id.buttonSave);
+        saveButtonZAdaptera.setOnClickListener(this);
+        abortButtonZAdaptera = view.findViewById(R.id.buttonAbort);
+        abortButtonZAdaptera.setOnClickListener(this);
 
 
         type = view.findViewById(R.id.showUpType);
         idek = view.findViewById(R.id.showUpId);
         geometry = view.findViewById(R.id.showUpGeometry);
-        MainActivity.database.myDao().getFeatureById(wybraneId)
+        MainActivity.database
+                .myDao()
+                .getFeatureById(wybraneId)
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(feature -> {
                     this.feature = feature;
                     type.setText(feature.getType());
                     idek.setText(Long.toString(feature.getId()));
-                    aaa = feature.getGeometry();
-                    temp = build(aaa).toString();
-                    geometry.setText(temp);
-                    //  temp = toPrettyFormat(feature.getProperties().toString());
-                    //   properties.setText(temp);
+                    geometry.setText(feature.getGeometry().toString());
+                    theList = build(feature.getProperties());
+                    adapterChoice.setMainList(theList); // jebac frajera co u lorda andre gebe otwiera :D
+                    // a tak serio to kurde.... przekaz ten result adapterowi by mogl zapisac sobie to :D
                 });
 
         return view;
@@ -103,9 +110,21 @@ public class ChosenOne extends Fragment {
 
         List<Pair<String, String>> list = temp.entrySet()
                 .stream()
-                .map(v -> Pair.create(v.getKey(), v != null ? v.toString() : "NULL"))
+                .map(v -> Pair.create(v.getKey(), v != null ? v.getValue().toString() : "NULL"))
                 .collect(Collectors.toList());
 
         return list;
+    }
+
+    @Override
+    public void onClick(View v) {
+        switch (v.getId()) {
+            case R.id.buttonEdit:
+                AdapterChoice.ViewHolder.changeAttribute(true);
+                break;
+            case R.id.buttonSave:
+                AdapterChoice.ViewHolder.changeAttribute(false);
+                break;
+        }
     }
 }
