@@ -13,10 +13,7 @@ import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
 import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
 
 import java.util.Collections;
 import java.util.List;
@@ -37,6 +34,7 @@ public class ChosenOne extends Fragment implements View.OnClickListener {
     private Button saveButtonZAdaptera;
     private Button abortButtonZAdaptera;
     private List<Pair<String, String>> theList = Collections.emptyList();
+    private List<Pair<String, String>> editableList = Collections.emptyList();
 
     private long wybraneId;
     private Feature feature;
@@ -55,13 +53,6 @@ public class ChosenOne extends Fragment implements View.OnClickListener {
 
     public void setFeature(Feature feature) {
         this.feature = feature;
-    }
-
-    public String toPrettyFormat(String jsonString) {
-        JsonParser parser = new JsonParser();
-        JsonObject jsonObject = parser.parse(jsonString).getAsJsonObject();
-        Gson gson = new GsonBuilder().setPrettyPrinting().create();
-        return gson.toJson(jsonObject);
     }
 
     @SuppressLint("CheckResult")
@@ -100,7 +91,6 @@ public class ChosenOne extends Fragment implements View.OnClickListener {
                     adapterChoice.setMainList(theList); // jebac frajera co u lorda andre gebe otwiera :D
                     // a tak serio to kurde.... przekaz ten result adapterowi by mogl zapisac sobie to :D
                 });
-
         return view;
 
     }
@@ -120,11 +110,18 @@ public class ChosenOne extends Fragment implements View.OnClickListener {
     public void onClick(View v) {
         switch (v.getId()) {
             case R.id.buttonEdit:
-                AdapterChoice.ViewHolder.changeAttribute(true, wybraneId);
+                adapterChoice = new AdapterChoice(getContext(), editableList);
+                adapterChoice.setMainList(editableList);
+                if (editButtonZAdaptera.getText() == "EDIT") {
+                    editButtonZAdaptera.setText("DONE");
+                }
                 break;
             case R.id.buttonSave:
-                AdapterChoice.ViewHolder.changeAttribute(false, wybraneId);
-                break;
+
+                if (editButtonZAdaptera.getText() == "DONE") {
+                    editButtonZAdaptera.setText("EDIT");
+                    break;
+                }
         }
     }
 }
