@@ -47,6 +47,9 @@ dependencies {
     // retrofit
     implementation 'com.squareup.retrofit2:retrofit:2.3.0'
     implementation 'com.squareup.retrofit2:converter-gson:2.3.0'
+    // https://mvnrepository.com/artifact/org.apache.commons/commons-lang3
+    implementation group: 'org.apache.commons', name: 'commons-lang3', version: '3.0'
+
 
     // rx java 2
     implementation group: 'io.reactivex.rxjava2', name: 'rxjava', version: '2.2.18'

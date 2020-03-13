@@ -15,6 +15,8 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.gson.JsonObject;
 
+import org.apache.commons.lang3.tuple.MutablePair;
+
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -33,8 +35,7 @@ public class ChosenOne extends Fragment implements View.OnClickListener {
     private Button editButtonZAdaptera;
     private Button saveButtonZAdaptera;
     private Button abortButtonZAdaptera;
-    private List<Pair<String, String>> theList = Collections.emptyList();
-    private List<Pair<String, String>> editableList = Collections.emptyList();
+    private List<MutablePair<String, String>> theList = Collections.emptyList();
 
     private long wybraneId;
     private Feature feature;
@@ -77,6 +78,13 @@ public class ChosenOne extends Fragment implements View.OnClickListener {
         type = view.findViewById(R.id.showUpType);
         idek = view.findViewById(R.id.showUpId);
         geometry = view.findViewById(R.id.showUpGeometry);
+        loadFeature();
+        return view;
+
+    }
+
+    @SuppressLint("CheckResult")
+    private void loadFeature() {
         MainActivity.database
                 .myDao()
                 .getFeatureById(wybraneId)
@@ -91,16 +99,14 @@ public class ChosenOne extends Fragment implements View.OnClickListener {
                     adapterChoice.setMainList(theList); // jebac frajera co u lorda andre gebe otwiera :D
                     // a tak serio to kurde.... przekaz ten result adapterowi by mogl zapisac sobie to :D
                 });
-        return view;
-
     }
 
-    private List<Pair<String, String>> build(JsonObject temp) {
+    private List<MutablePair<String, String>> build(JsonObject temp) {
         List<String> output = Collections.emptyList();
 
-        List<Pair<String, String>> list = temp.entrySet()
+        List<MutablePair<String, String>> list = temp.entrySet()
                 .stream()
-                .map(v -> Pair.create(v.getKey(), v != null ? v.getValue().toString() : "NULL"))
+                .map(v -> MutablePair.of(v.getKey(), v != null ? v.getValue().toString() : "NULL"))
                 .collect(Collectors.toList());
 
         return list;
@@ -110,18 +116,26 @@ public class ChosenOne extends Fragment implements View.OnClickListener {
     public void onClick(View v) {
         switch (v.getId()) {
             case R.id.buttonEdit:
-                adapterChoice = new AdapterChoice(getContext(), editableList);
-                adapterChoice.setMainList(editableList);
-                if (editButtonZAdaptera.getText() == "EDIT") {
-                    editButtonZAdaptera.setText("DONE");
-                }
+                adapterChoice.setEditable(true); //wl edytowalnosc values
+                listView.setAdapter(adapterChoice);// bo jego uzywamy
+                editButtonZAdaptera.setVisibility(View.GONE);
+                saveButtonZAdaptera.setVisibility(View.VISIBLE);  //zmieniamy przyciski
+                abortButtonZAdaptera.setVisibility(View.VISIBLE);
                 break;
             case R.id.buttonSave:
-
-                if (editButtonZAdaptera.getText() == "DONE") {
-                    editButtonZAdaptera.setText("EDIT");
-                    break;
-                }
+                adapterChoice.setEditable(false);
+                editButtonZAdaptera.setVisibility(View.VISIBLE);
+                saveButtonZAdaptera.setVisibility(View.GONE);  //zmieniamy przyciski
+                abortButtonZAdaptera.setVisibility(View.GONE);
+                break;
+            case R.id.buttonAbort:
+                adapterChoice.setEditable(false);
+                loadFeature();
+                editButtonZAdaptera.setVisibility(View.VISIBLE);
+                saveButtonZAdaptera.setVisibility(View.GONE);  //zmieniamy przyciski
+                abortButtonZAdaptera.setVisibility(View.GONE);
+                break;
         }
     }
 }
+

@@ -1,7 +1,8 @@
 package com.example.myapplication;
 
 import android.content.Context;
-import android.util.Pair;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -12,30 +13,24 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+import org.apache.commons.lang3.tuple.MutablePair;
+
 import java.util.List;
 
 
 public class AdapterChoice extends RecyclerView.Adapter<AdapterChoice.ViewHolder> {
     private Context context;
-    private List<Pair<String, String>> mainList;
-    //private View textValue;
-    //private FragmentManager fragmentManager;
+    private List<MutablePair<String, String>> mainList;
+    public String original;
+    private boolean editable;
 
-    public static class ViewHolder extends RecyclerView.ViewHolder {
+    public class ViewHolder extends RecyclerView.ViewHolder {
         public TextView textKey;
-        public static EditText textValue;
+        public EditText textValue;
         //public ListView listView;
         public RelativeLayout relativeLayout;
-
-      /*  public static void changeAttribute(boolean a, long b) {
-            //textValue.setFocusableInTouchMode(a);
-            textValue.setEnabled(a);
-
-            MainActivity.fragmentManager.beginTransaction()
-                    .replace(R.id.fragment_container, new ChosenOne(b))
-                    .addToBackStack(null)
-                    .commit();
-        }*/
+        public String original;
+        public MutablePair<String,String> para;
 
         public ViewHolder(@NonNull View itemView) {
             super(itemView);
@@ -44,14 +39,42 @@ public class AdapterChoice extends RecyclerView.Adapter<AdapterChoice.ViewHolder
             //listView = itemView.findViewById(R.id.textValue);
             relativeLayout = itemView.findViewById(R.id.showUpProperties);
         }
+
+        public void setPara(MutablePair<String,String> para){
+            this.para = para;
+            textKey.setText(para.left);// bo to klucz
+            textValue.setText(para.right);// bo to wartosc do przypisania
+            original = para.right; // tak just in case
+
+            textValue.addTextChangedListener(new TextWatcher() {
+                @Override
+                public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+                    // tu nic bo przed zmiana nas nie obchodzi
+                }
+
+                @Override
+                public void onTextChanged(CharSequence s, int start, int before, int count) {
+                    para.setRight(s.toString()); // w razie gdy sie zmieni
+                }
+
+                @Override
+                public void afterTextChanged(Editable s) {
+                    // po tak samo juz nie
+                }
+            });
+        }
     }
 
-    public void setMainList(List<Pair<String, String>> list) {
+    public void setMainList(List<MutablePair<String, String>> list) {
         this.mainList = list;
         notifyDataSetChanged();
     }
+    public void setEditable(boolean editable){
+        this.editable = editable;
+        notifyDataSetChanged();
+    }
 
-    public AdapterChoice(Context context, List<Pair<String, String>> listOfPairs) {
+    public AdapterChoice(Context context, List<MutablePair<String, String>> listOfPairs) {
         this.context = context;
         mainList = listOfPairs;
         notifyDataSetChanged();
@@ -66,11 +89,9 @@ public class AdapterChoice extends RecyclerView.Adapter<AdapterChoice.ViewHolder
 
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
-        Pair<String, String> para = mainList.get(position);
-        holder.textKey.setText(para.first);
-        holder.textValue.setText(para.second);
-        //holder.listView.setAdapter(new ArrayAdapter<String>(Context, Layout, para.second));
-
+        MutablePair<String, String> para = mainList.get(position);
+        holder.setPara(para);
+        holder.textValue.setEnabled(editable);
     }
 
     @Override
